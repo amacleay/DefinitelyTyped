@@ -45,7 +45,7 @@ export type EnzymeSelector = string | StatelessComponent<any> | ComponentClass<a
 
 export type Intercepter<T> = (intercepter: T) => void;
 
-export interface CommonWrapper<P = {}, S = {}> {
+export interface CommonWrapper<P = {}, S = {}, C = Component<P, S>> {
     /**
      * Returns a new wrapper with only the nodes of the current wrapper that, when passed into the provided predicate function, return true.
      */
@@ -258,7 +258,7 @@ export interface CommonWrapper<P = {}, S = {}> {
      *
      * NOTE: can only be called on a wrapper instance that is also the root instance.
      */
-    instance(): Component<P, S>;
+    instance(): C;
 
     /**
      * Forces a re-render. Useful to run before checking the render output if something external may be updating
@@ -354,8 +354,8 @@ export interface CommonWrapper<P = {}, S = {}> {
 }
 
 // tslint:disable-next-line no-empty-interface
-export interface ShallowWrapper<P = {}, S = {}> extends CommonWrapper<P, S> { }
-export class ShallowWrapper<P = {}, S = {}> {
+export interface ShallowWrapper<P = {}, S = {}, C = ComponentClass<P>> extends CommonWrapper<P, S, C> { }
+export class ShallowWrapper<P = {}, S = {}, C = ComponentClass<P>> {
     constructor(nodes: JSX.Element[] | JSX.Element, root?: ShallowWrapper<any, any>, options?: ShallowRendererProps);
     shallow(options?: ShallowRendererProps): ShallowWrapper<P, S>;
     unmount(): this;
@@ -431,6 +431,7 @@ export class ShallowWrapper<P = {}, S = {}> {
     closest<P2>(component: ComponentClass<P2>): ShallowWrapper<P2, any>;
     closest<P2>(statelessComponent: StatelessComponent<P2>): ShallowWrapper<P2, never>;
     closest(props: EnzymePropSelector): ShallowWrapper<any, any>;
+
     closest(selector: string): ShallowWrapper<HTMLAttributes, any>;
 
     /**
@@ -440,7 +441,7 @@ export class ShallowWrapper<P = {}, S = {}> {
 }
 
 // tslint:disable-next-line no-empty-interface
-export interface ReactWrapper<P = {}, S = {}> extends CommonWrapper<P, S> { }
+export interface ReactWrapper<P = {}, S = {}> extends CommonWrapper<P, S> {}
 export class ReactWrapper<P = {}, S = {}> {
     constructor(nodes: JSX.Element | JSX.Element[], root?: ReactWrapper<any, any>, options?: MountRendererProps);
 
@@ -590,6 +591,10 @@ export interface MountRendererProps {
  */
 export function shallow<P>(node: ReactElement<P>, options?: ShallowRendererProps): ShallowWrapper<P, any>;
 export function shallow<P, S>(node: ReactElement<P>, options?: ShallowRendererProps): ShallowWrapper<P, S>;
+export function shallow<P, S, C>(
+  node: C,
+  options?: ShallowRendererProps,
+): ShallowWrapper<P, S, C>;
 
 /**
  * Mounts and renders a react component into the document and provides a testing wrapper around it.
